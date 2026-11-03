@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSC ICT Online Book - তথ্য ও যোগাযোগ প্রযুক্তি</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Progress Bar -->
+    <div id="read-progress-bar"></div>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <div class="nav-left">
+            <button id="sidebar-toggle" class="icon-btn" title="Toggle Navigation">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+            <div class="logo">
+                <i class="fa-solid fa-book-bookmark text-gradient"></i>
+                <span class="logo-text">HSC <span class="highlight">ICT</span> Chapters</span>
+            </div>
+        </div>
+
+        <div class="nav-center">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" placeholder="অধ্যায় বা টপিক খুঁজুন (যেমন: অপটিক্যাল ফাইবার, C প্রোগ্রামিং...)...">
+                <button id="search-clear" class="clear-btn hidden"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <!-- Code Board Trigger Button -->
+            <button id="code-board-btn" class="code-practice-btn" title="কোড প্র্যাকটিস বোর্ড">
+                <i class="fa-solid fa-code"></i> কোড প্র্যাকটিস
+            </button>
+
+            <!-- Font Size Controls -->
+            <div class="font-controls">
+                <button class="font-btn" id="font-dec" title="লেখা ছোট করুন">A-</button>
+                <button class="font-btn" id="font-reset" title="স্বাভাবিক লেখার সাইজ">A</button>
+                <button class="font-btn" id="font-inc" title="লেখা বড় করুন">A+</button>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="icon-btn" title="Theme Switcher">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <!-- Bookmarks Modal Button -->
+            <button id="bookmarks-btn" class="icon-btn" title="Saved Bookmarks">
+                <i class="fa-solid fa-bookmark"></i>
+                <span id="bookmark-badge" class="badge">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container Layout -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fa-solid fa-layer-group"></i> অধ্যায়সমূহ</h3>
+                <span id="total-chapters-count" class="chap-count">৬ টি অধ্যায়</span>
+            </div>
+            
+            <nav id="chapter-list" class="chapter-nav">
+                <!-- Dynamically generated chapter list -->
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Search Results Panel -->
+            <div id="search-results-panel" class="search-results-panel hidden">
+                <div class="results-header">
+                    <h2><i class="fa-solid fa-square-poll-vertical"></i> অনুসন্ধানের ফলাফল</h2>
+                    <span id="search-stats">০ টি ফলাফল পাওয়া গেছে</span>
+                </div>
+                <div id="search-results-list" class="results-list"></div>
+            </div>
+
+            <!-- Reader Canvas -->
+            <div id="reader-canvas" class="reader-canvas">
+                <!-- Chapter Hero Header -->
+                <div id="chapter-hero" class="chapter-hero">
+                    <div class="hero-badge" id="hero-badge">অধ্যায় ১</div>
+                    <h1 id="hero-title">তথ্য ও যোগাযোগ প্রযুক্তি: বিশ্ব ও বাংলাদেশ পরিচিতি</h1>
+                    <div class="hero-meta">
+                        <span><i class="fa-solid fa-list-check"></i> <span id="sec-count">০</span> টি পরিচ্ছেদ</span>
+                        <span><i class="fa-solid fa-clock"></i> আনুমানিক পাঠ সময়: <span id="read-time">১০</span> মিনিট</span>
+                    </div>
+                </div>
+
+                <!-- Sections Container -->
+                <div id="sections-container" class="sections-container">
+                    <!-- Sections loaded here dynamically -->
+                </div>
+
+                <!-- Bottom Navigation Controller -->
+                <div class="bottom-nav">
+                    <button id="prev-sec-btn" class="nav-control-btn"><i class="fa-solid fa-arrow-left"></i> পূর্ববর্তী বিষয়</button>
+                    <div id="page-indicator" class="page-indicator">পরিচ্ছেদ ১ / ১</div>
+                    <button id="next-sec-btn" class="nav-control-btn">পরবর্তী বিষয় <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CODE PRACTICE BOARD MODAL -->
+    <div id="code-modal" class="modal hidden">
+        <div class="code-modal-card">
+            <div class="code-modal-header">
+                <div class="code-title">
+                    <i class="fa-solid fa-laptop-code text-gradient"></i>
+                    <h2>HSC ICT কোড প্র্যাকটিস বোর্ড (Code Playground)</h2>
+                </div>
+                <span class="modal-card-close" id="close-code-modal">&times;</span>
+            </div>
+
+            <!-- Code Board Tabs -->
+            <div class="code-tabs">
+                <button class="code-tab-btn active" data-tab="html">
+                    <i class="fa-brands fa-html5" style="color: #e34f26;"></i> HTML প্র্যাকটিস (অধ্যায় ৪)
+                </button>
+                <button class="code-tab-btn" data-tab="cprog">
+                    <i class="fa-solid fa-c" style="color: #00599c;"></i> C প্রোগ্রামিং (অধ্যায় ৫)
+                </button>
+                <button class="code-tab-btn" data-tab="sql">
+                    <i class="fa-solid fa-database" style="color: #f29111;"></i> SQL ডেটাবেজ (অধ্যায় ৬)
+                </button>
+            </div>
+
+            <!-- TAB 1: HTML EDITOR -->
+            <div id="tab-html" class="code-tab-content active">
+                <div class="code-presets">
+                    <span>স্যাম্পল কোড:</span>
+                    <button class="preset-btn" data-preset="html-basic">মৌলিক স্ট্রাকচার</button>
+                    <button class="preset-btn" data-preset="html-table">এইচটিএমএল টেবিল</button>
+                    <button class="preset-btn" data-preset="html-form">ইনপুট ফর্ম</button>
+                    <button class="preset-btn" data-preset="html-list">তালিকা (List)</button>
+                </div>
+                <div class="editor-split">
+                    <div class="editor-pane">
+                        <div class="pane-header"><i class="fa-solid fa-code"></i> HTML / CSS সম্পাদনা করুন:</div>
+                        <textarea id="html-code-input" class="code-textarea" spellcheck="false"></textarea>
+                    </div>
+                    <div class="preview-pane">
+                        <div class="pane-header"><i class="fa-solid fa-desktop"></i> লাইভ আউটপুট প্রিভিউ:</div>
+                        <iframe id="html-preview-frame" class="preview-frame"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: C PROGRAMMING EDITOR -->
+            <div id="tab-cprog" class="code-tab-content">
+                <div class="code-presets">
+                    <span>স্যাম্পল কোড:</span>
+                    <button class="preset-btn" data-preset="c-hello">Hello World</button>
+                    <button class="preset-btn" data-preset="c-sum">দুটি সংখ্যার যোগফল</button>
+                    <button class="preset-btn" data-preset="c-evenodd">জোড় / বিজোড় নির্ণয়</button>
+                    <button class="preset-btn" data-preset="c-loop">ফ্যাক্টরিয়াল (Loop)</button>
+                    <button class="preset-btn" data-preset="c-array">অ্যারে (Array Sum)</button>
+                </div>
+                <div class="editor-split">
+                    <div class="editor-pane">
+                        <div class="pane-header">
+                            <span><i class="fa-solid fa-code"></i> C কোড লিখুন:</span>
+                            <button id="run-c-btn" class="run-code-btn"><i class="fa-solid fa-play"></i> কোড রান করুন</button>
+                        </div>
+                        <textarea id="c-code-input" class="code-textarea" spellcheck="false"></textarea>
+                    </div>
+                    <div class="preview-pane">
+                        <div class="pane-header"><i class="fa-solid fa-terminal"></i> কনসোল আউটপুট (Console Output):</div>
+                        <div id="c-console-output" class="console-output">> C প্রোগ্রামটি রান করার জন্য 'কোড রান করুন' বাটনে চাপ দিন।</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SQL DATABASE EDITOR -->
+            <div id="tab-sql" class="code-tab-content">
+                <div class="code-presets">
+                    <span>স্যাম্পল কুয়েরি:</span>
+                    <button class="preset-btn" data-preset="sql-all">সকল তথ্য দেখুন (SELECT *)</button>
+                    <button class="preset-btn" data-preset="sql-where">ফিল্টার (WHERE GPA >= 5.0)</button>
+                    <button class="preset-btn" data-preset="sql-order">সর্টিং (ORDER BY Roll)</button>
+                    <button class="preset-btn" data-preset="sql-group">গ্রুপ বাই (GROUP BY)</button>
+                </div>
+                <div class="editor-split">
+                    <div class="editor-pane">
+                        <div class="pane-header">
+                            <span><i class="fa-solid fa-database"></i> SQL কুয়েরি লিখুন (Table: Students):</span>
+                            <button id="run-sql-btn" class="run-code-btn"><i class="fa-solid fa-play"></i> কুয়েরি চালান</button>
+                        </div>
+                        <textarea id="sql-code-input" class="code-textarea" spellcheck="false"></textarea>
+                    </div>
+                    <div class="preview-pane">
+                        <div class="pane-header"><i class="fa-solid fa-table"></i> কুয়েরির ফলাফল (Result Table):</div>
+                        <div id="sql-result-container" class="sql-result-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal Lightbox -->
+    <div id="img-modal" class="modal hidden">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modal-img">
+        <div id="modal-caption" class="modal-caption"></div>
+    </div>
+
+    <!-- Bookmarks Drawer/Modal -->
+    <div id="bookmarks-modal" class="modal hidden">
+        <div class="modal-card">
+            <div class="modal-card-header">
+                <h3><i class="fa-solid fa-bookmark text-gradient"></i> বুকমার্ক করা সেকশনসমূহ</h3>
+                <span class="modal-card-close" id="close-bookmarks">&times;</span>
+            </div>
+            <div id="bookmarks-list" class="bookmarks-list">
+                <p class="empty-msg">এখনো কোনো সেকশন বুকমার্ক করা হয়নি।</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="book_data.js?v=2.0"></script>
+    <script src="app.js?v=2.0"></script>
+</body>
+</html>
