@@ -1,6 +1,6 @@
 /* ==========================================================================
    HSC ICT Interactive Web Application JavaScript Logic with Code Playground
-   Updated: 3-Module Architecture (১। পাঠ্যবই পঠন, ২। অনুশীলন, ৩। মূল্যায়ন ও পরীক্ষা)
+   Updated: 3-Module Architecture & Section-by-Section Detailed Reading
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSectionIndex = 0;
     let currentModule = 'textbook'; // 'textbook' | 'practice' | 'exam'
     let activeAccordionChap = null; // বাই ডিফল্ট সব অধ্যায় বন্ধ থাকবে (screenshot format)
-    let textbookSublistOpen = false;
+    let textbookSublistOpen = true;
 
     // Exam State
     let examTimerInterval = null;
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isAccordionActive = (chapIdx === activeAccordionChap);
             chapItem.className = `chap-accordion-item ${isAccordionActive ? 'active' : ''}`;
 
-            // Chapter Header Button
+            // Chapter Header Button (Level 1)
             const headerBtn = document.createElement('button');
             headerBtn.className = 'chap-header-btn';
             headerBtn.innerHTML = `
@@ -87,23 +87,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     activeAccordionChap = chapIdx;
                     currentChapterIndex = chapIdx;
+                    currentSectionIndex = 0;
+                    currentModule = 'textbook';
+                    textbookSublistOpen = true;
                     loadChapterContent(chapIdx);
                 }
                 renderSidebar();
             });
 
-            // Chapter 3 Modules Sub-group (Visible only when expanded)
+            // Chapter 3 Modules Sub-group (Visible only when chapter is expanded)
             const moduleGroup = document.createElement('div');
             moduleGroup.className = 'chap-module-group';
 
             if (isAccordionActive) {
-                // 1. পাঠ্যবই পঠন Button
+                // 1. পাঠ্যবই পঠন Button (Level 2)
                 const textbookBtn = document.createElement('div');
                 const isTextbookActive = (chapIdx === currentChapterIndex && currentModule === 'textbook');
                 textbookBtn.className = `module-header-btn ${isTextbookActive ? 'active' : ''}`;
                 textbookBtn.innerHTML = `
                     <span><i class="fa-solid fa-book"></i> ১। পাঠ্যবই পঠন</span>
-                    <i class="fa-solid fa-caret-${textbookSublistOpen ? 'up' : 'down'}" style="font-size:0.85rem;"></i>
+                    <i class="fa-solid fa-caret-${textbookSublistOpen ? 'down' : 'right'}" style="font-size:0.85rem; color:var(--text-muted);"></i>
                 `;
                 textbookBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -115,15 +118,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 moduleGroup.appendChild(textbookBtn);
 
-                // Textbook Sub-sections list
+                // Textbook Sub-sections list: ১.১ থেকে ১.৩১ (Level 3)
                 const subList = document.createElement('div');
                 subList.className = `module-subsections ${textbookSublistOpen ? 'open' : ''}`;
                 const tSections = chap.textbook_sections || chap.sections || [];
+
                 tSections.forEach((sec, secIdx) => {
                     const secLink = document.createElement('div');
                     const isSecActive = (chapIdx === currentChapterIndex && currentModule === 'textbook' && secIdx === currentSectionIndex);
                     secLink.className = `sec-link-item ${isSecActive ? 'active-sec' : ''}`;
-                    secLink.innerHTML = `<i class="fa-regular fa-file-lines"></i> ${sec.title}`;
+                    secLink.title = sec.title;
+                    secLink.innerHTML = `<i class="fa-regular fa-file-lines" style="font-size:0.8rem; opacity:0.7;"></i> <span>${sec.title}</span>`;
                     secLink.addEventListener('click', (e) => {
                         e.stopPropagation();
                         currentChapterIndex = chapIdx;
@@ -131,10 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         currentSectionIndex = secIdx;
                         loadChapterContent(chapIdx);
                         renderSidebar();
-                        const secCard = document.getElementById(`sec-card-${sec.id}`);
-                        if (secCard) {
-                            secCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
                         if (window.innerWidth <= 900) {
                             sidebar.classList.remove('open');
                         }
@@ -481,15 +482,84 @@ document.addEventListener('DOMContentLoaded', () => {
         sectionsContainer.innerHTML = '';
         sectionsContainer.appendChild(moduleSwitcher);
 
+        const tSections = chap.textbook_sections || chap.sections || [];
+
         if (currentModule === 'textbook') {
-            const tSections = chap.textbook_sections || chap.sections || [];
-            secCount.textContent = tSections.length;
+            secCount.textContent = `${tSections.length} টি পরিচ্ছেদ`;
             readTime.textContent = Math.ceil(tSections.length * 2.5);
 
-            tSections.forEach((sec, secIdx) => {
-                const card = createSectionCard(sec, chapIdx, secIdx);
+            // Detailed view of the SELECTED section (১.১ থেকে ১.৩১ এর মধ্যে যা সিলেক্ট করা হবে)
+            const currentSec = tSections[currentSectionIndex] || tSections[0];
+
+            if (currentSec) {
+                // Section Navigation Pill / Badge
+                const secNavHeader = document.createElement('div');
+                secNavHeader.style.display = 'flex';
+                secNavHeader.style.justifyContent = 'space-between';
+                secNavHeader.style.alignItems = 'center';
+                secNavHeader.style.marginBottom = '16px';
+                secNavHeader.innerHTML = `
+                    <div style="font-size: 0.95rem; color: var(--accent-blue); font-weight: 700;">
+                        <i class="fa-solid fa-book-bookmark"></i> পরিচ্ছেদ ${currentSectionIndex + 1} / ${tSections.length}
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">
+                        অধ্যায় ${chap.number} • পাঠ্যবই পঠন
+                    </div>
+                `;
+                sectionsContainer.appendChild(secNavHeader);
+
+                // Detailed Section Card
+                const card = createSectionCard(currentSec, chapIdx, currentSectionIndex);
                 sectionsContainer.appendChild(card);
-            });
+
+                // Bottom Prev / Next Navigation for Sections
+                const bottomNav = document.createElement('div');
+                bottomNav.style.display = 'flex';
+                bottomNav.style.justifyContent = 'space-between';
+                bottomNav.style.alignItems = 'center';
+                bottomNav.style.marginTop = '24px';
+                bottomNav.style.paddingTop = '16px';
+                bottomNav.style.borderTop = '1px solid var(--border-color)';
+
+                const prevDisabled = (currentSectionIndex <= 0);
+                const nextDisabled = (currentSectionIndex >= tSections.length - 1);
+
+                bottomNav.innerHTML = `
+                    <button class="nav-btn ${prevDisabled ? 'disabled' : ''}" id="bottom-prev-btn" ${prevDisabled ? 'disabled' : ''} style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:8px; background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary); cursor:pointer;">
+                        <i class="fa-solid fa-arrow-left"></i> পূর্ববর্তী পরিচ্ছেদ
+                    </button>
+                    <span style="font-weight:600; color:var(--text-secondary); font-size:0.95rem;">
+                        ${currentSectionIndex + 1} / ${tSections.length}
+                    </span>
+                    <button class="nav-btn ${nextDisabled ? 'disabled' : ''}" id="bottom-next-btn" ${nextDisabled ? 'disabled' : ''} style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:8px; background:var(--accent-gradient); border:none; color:#fff; cursor:pointer; font-weight:600;">
+                        পরবর্তী পরিচ্ছেদ <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                `;
+
+                sectionsContainer.appendChild(bottomNav);
+
+                const bPrev = bottomNav.querySelector('#bottom-prev-btn');
+                const bNext = bottomNav.querySelector('#bottom-next-btn');
+
+                if (bPrev && !prevDisabled) {
+                    bPrev.addEventListener('click', () => {
+                        currentSectionIndex--;
+                        loadChapterContent(chapIdx);
+                        renderSidebar();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+
+                if (bNext && !nextDisabled) {
+                    bNext.addEventListener('click', () => {
+                        currentSectionIndex++;
+                        loadChapterContent(chapIdx);
+                        renderSidebar();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            }
+
         } else if (currentModule === 'practice') {
             secCount.textContent = 'পূর্ণাঙ্গ গাইড';
             readTime.textContent = '২০';
@@ -524,18 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentModule = 'textbook';
         loadChapterContent(currentChapterIndex);
         renderSidebar();
-
-        const chap = BOOK_DATA[currentChapterIndex];
-        const tSections = chap.textbook_sections || chap.sections || [];
-        const targetSec = tSections[currentSectionIndex];
-
-        if (targetSec) {
-            const secCard = document.getElementById(`sec-card-${targetSec.id}`);
-            if (secCard) {
-                secCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         updateNavControls();
     }
 
@@ -548,17 +607,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `পরিচ্ছেদ ${currentSectionIndex + 1} / ${tSections.length}`
             : (currentModule === 'practice' ? 'অনুশীলন অংশ' : 'মূল্যায়ন ও পরীক্ষা');
 
-        prevSecBtn.disabled = (currentChapterIndex === 0 && currentSectionIndex === 0);
-        nextSecBtn.disabled = (currentChapterIndex === BOOK_DATA.length - 1 && currentSectionIndex === tSections.length - 1);
+        prevSecBtn.disabled = (currentSectionIndex === 0);
+        nextSecBtn.disabled = (currentSectionIndex === tSections.length - 1);
     }
 
     prevSecBtn.addEventListener('click', () => {
         if (currentSectionIndex > 0) {
-            selectChapterAndSection(currentChapterIndex, currentSectionIndex - 1);
-        } else if (currentChapterIndex > 0) {
-            const prevChap = BOOK_DATA[currentChapterIndex - 1];
-            const prevSections = prevChap.textbook_sections || prevChap.sections || [];
-            selectChapterAndSection(currentChapterIndex - 1, prevSections.length - 1);
+            currentSectionIndex--;
+            loadChapterContent(currentChapterIndex);
+            renderSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
@@ -566,9 +624,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const chap = BOOK_DATA[currentChapterIndex];
         const tSections = chap.textbook_sections || chap.sections || [];
         if (currentSectionIndex < tSections.length - 1) {
-            selectChapterAndSection(currentChapterIndex, currentSectionIndex + 1);
-        } else if (currentChapterIndex < BOOK_DATA.length - 1) {
-            selectChapterAndSection(currentChapterIndex + 1, 0);
+            currentSectionIndex++;
+            loadChapterContent(currentChapterIndex);
+            renderSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
@@ -604,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateBookmarkBadge() {
-        // Reserved for header bookmark badge if added
+        // Reserved
     }
 
     // --- Image Modal ---
@@ -777,9 +836,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initialize App ---
-    // বাই ডিফল্ট সব অধ্যায় কলাপ্সড থাকবে (screenshot format)
+    // বাই ডিফল্ট সব অধ্যায় বন্ধ থাকবে (screenshot format)
     activeAccordionChap = null;
     currentModule = 'textbook';
+    currentSectionIndex = 0;
     renderSidebar();
     loadChapterContent(0);
 });
