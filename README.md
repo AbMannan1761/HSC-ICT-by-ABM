@@ -19,3 +19,4 @@ Then navigate to `http://localhost:8080/index.html`.
 
 ## Deployment
 This static web application can be deployed instantly to **GitHub Pages**, **Vercel**, or **Netlify**.
+
